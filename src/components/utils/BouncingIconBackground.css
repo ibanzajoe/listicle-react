@@ -1,0 +1,70 @@
+/* FloatingIconsBackground.css */
+
+.background-container {
+    position: fixed; /* Or absolute if relative to a specific container */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    /* background-color: #282c34; */ /* Optional: Set a base background color */
+    background: linear-gradient(to bottom right, #1a2a6c, #b21f1f, #fdbb2d); /* Example gradient */
+    overflow: hidden; /* Prevent scrollbars if icons go slightly out */
+    z-index: -1; /* Ensure it's behind other content */
+  }
+  
+  .floating-icon {
+    position: absolute;
+    color: rgba(255, 255, 255, 0.5); /* Semi-transparent white icons */
+    display: block;
+    /* The animation name 'float' is defined below */
+    animation-name: float;
+    animation-timing-function: ease-in-out; /* Smooth start and end */
+    animation-iteration-count: infinite; /* Loop forever */
+    animation-direction: alternate; /* Go back and forth */
+    user-select: none; /* Prevent text selection */
+    pointer-events: none; /* Icons shouldn't be interactive */
+  }
+  
+  /* Define the floating animation */
+  @keyframes float {
+    0% {
+      transform: translateY(0px) translateX(0px) rotate(0deg);
+      opacity: 0.3;
+    }
+    25% {
+      transform: translateY(-20px) translateX(15px) rotate(15deg);
+      opacity: 0.6;
+    }
+    50% {
+      transform: translateY(10px) translateX(-10px) rotate(-10deg);
+      opacity: 1;
+    }
+    75% {
+       transform: translateY(-15px) translateX(25px) rotate(5deg);
+       opacity: 0.6;
+    }
+    100% {
+      transform: translateY(0px) translateX(0px) rotate(0deg);
+      opacity: 0.3;
+    }
+  }
+  
+  /* --- Alternative Animation: Simple Drift --- */
+  /*
+  @keyframes drift {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(calc(50vw * (var(--drift-x, 1))), calc(50vh * (var(--drift-y, 1)))) rotate(360deg); }
+  }
+  
+  .floating-icon-drift {
+    position: absolute;
+    color: rgba(255, 255, 255, 0.5);
+    display: block;
+    animation-name: drift;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+     --drift-x: 1; // Default values, override with inline style if needed
+     --drift-y: 1;
+  }
+  */
+  /* You would need more logic in React to make the drift animation truly random across the screen */
