@@ -1,6 +1,7 @@
 import { useAdminUsers } from "@/context/AdminUsersContext";
 import { Checkbox, Table } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { useEffect, useMemo, useRef } from "react";
 
 export default function BaseTable({ headers, children, allowChecks = false }: { headers: string[], children: React.ReactNode, allowChecks?: boolean }) {
   return <Table striped highlightOnHover withTableBorder className="!text-xs">
@@ -32,6 +33,15 @@ export function BasePagination() {
       }
     }
   }
+
+  const prevTotalRef = useRef(total);
+
+  useEffect(() => {
+    if (total && prevTotalRef.current !== total) {
+      prevTotalRef.current = total;
+    }
+  }, [total]);
+
   return (
     <div className="flex items-center gap-4">
       <IconChevronLeft
@@ -39,7 +49,7 @@ export function BasePagination() {
         onClick={() => handlePaginationChange("left")} 
       />
       <span>
-        {pagination.page * pagination.itemsPerPage} / {total}
+        {pagination.page * pagination.itemsPerPage} / {prevTotalRef.current}
       </span>
       <IconChevronRight
         className="cursor-pointer"

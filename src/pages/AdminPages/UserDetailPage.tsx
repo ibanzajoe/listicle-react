@@ -5,7 +5,7 @@ import { useAdminUsers, User } from "@/context/AdminUsersContext"
 import { Button, Card, Loader, Select, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useMutation } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function UserDetailPage() {
   const { user, isFetchingUser, userStatus, refetchUser } = useAdminUsers();
@@ -37,11 +37,23 @@ export default function UserDetailPage() {
     mutate(data);
   }
 
+  const sellerPermitFiles = useMemo(() => {
+    if (user?.seller_permit_files && user.seller_permit_files.length > 0) {
+      if (typeof user.seller_permit_files === 'string') {
+        return JSON.parse(user.seller_permit_files);
+      }
+      return user.seller_permit_files;
+    }
+    return [];
+  }, [user]);
+
   useEffect(() => {
     if (user) {
       form.setValues({...user})
     }
   }, [user])
+
+  console.log('user: ', user);
 
   return (
     <div className="user-detail-page w-full p-4">
@@ -168,7 +180,7 @@ export default function UserDetailPage() {
                 <div className="flex items-center gap-4 py-2">
                   <span className="w-[150px] m-0">Email:</span>
                   <div>
-                    {user && user.seller_permit_files && user.seller_permit_files.map((item, index) => (
+                    {user && sellerPermitFiles && sellerPermitFiles.map((item, index: number) => (
                       <p className="cursor-pointer">File: {index+1}</p>
                     ))}
                   </div>

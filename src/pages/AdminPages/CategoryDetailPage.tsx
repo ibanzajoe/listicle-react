@@ -5,42 +5,40 @@ import AdminPageWrapper from "@/components/AdminPageWrapper";
 import ProductCard from "@/components/products/ProductCard";
 import { Button, Loader, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 
-type Product = {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  image?: string;
-  category_id: number;
-  created_at: Date;
-  updated_at: Date | null;
-}
-
-type CategoryWithProducts = {
-  id: number;
-  name: string;
-  parent_id: number;
-  rank: number;
-  created_at: Date;
-  updated_at: Date | null;
-  products: Product[];
-}
+// Remove local Product and CategoryWithProducts types and import the shared type instead
+import type { CategoryWithProducts } from "@/lib/types";
 
 export default function CategoryDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const [pagination, setPagination] = useState({
+    page: 1,
+    itemsPerPage: 20,
+    sortBy: 'updated_at',
+    sortDesc: true
+  })
   
-  const { data: category, isLoading, error } = useQuery<CategoryWithProducts>({
+  const { data: categoryData, isLoading, error } = useQuery<CategoryWithProducts>({
     queryKey: ['categoryWithProducts', id],
-    queryFn: () => getCategoryWithProducts(id!),
-    enabled: !!id
+    queryFn: () => getCategoryWithProducts(id!, pagination),
   });
 
-  const breadcrumbs: { title: string, href: string }[] = [
-    { title: "Categories", href: "/admin/categories" },
-    { title: category ? category.name : 'Loading...', href: "#"}
-  ];
+  const category = useMemo(() => {
+    return categoryData ? categoryData.category : null;
+  }, [categoryData])
+
+  const categoryProducts = useMemo(() => {
+    return categoryData ? categoryData.products : [];
+  }, [categoryData]);
+
+  const breadcrumbs: { title: string, href: string }[] = useMemo(() => {
+    return [
+      { title: "Categories", href: "/admin/categories" },
+      { title: category ? category.name : 'Loading...', href: "#"}
+    ]
+  }, [category]);
 
   if (isLoading) {
     return (
@@ -60,7 +58,11 @@ export default function CategoryDetailPage() {
             title="Category Not Found" 
             crumbs={breadcrumbs}
             backURL="/admin/categories"
-          />
+          >
+            <div>
+              Hello
+            </div>
+          </AdminPageHeader>
         </div>
         <AdminCard>
           <Text color="red">Error loading category details.</Text>
@@ -85,24 +87,24 @@ export default function CategoryDetailPage() {
         <AdminCard>
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-4">
-              <Text weight={600} className="w-32">Name:</Text>
+              <Text className="w-32">Name:</Text>
               <Text>{category.name}</Text>
             </div>
             <div className="flex items-center gap-4">
-              <Text weight={600} className="w-32">Rank:</Text>
+              <Text className="w-32">Rank:</Text>
               <Text>{category.rank}</Text>
             </div>
             <div className="flex items-center gap-4">
-              <Text weight={600} className="w-32">Parent ID:</Text>
+              <Text className="w-32">Parent ID:</Text>
               <Text>{category.parent_id === 0 ? 'Root Category' : category.parent_id}</Text>
             </div>
             <div className="flex items-center gap-4">
-              <Text weight={600} className="w-32">Created:</Text>
+              <Text className="w-32">Created:</Text>
               <Text>{new Date(category.created_at).toLocaleDateString()}</Text>
             </div>
             {category.updated_at && (
               <div className="flex items-center gap-4">
-                <Text weight={600} className="w-32">Updated:</Text>
+                <Text className="w-32">Updated:</Text>
                 <Text>{new Date(category.updated_at).toLocaleDateString()}</Text>
               </div>
             )}
@@ -113,17 +115,17 @@ export default function CategoryDetailPage() {
       <div className="mb-4">
         <AdminCard>
           <div className="flex items-center justify-between mb-4">
-            <Text size="xl" weight={600}>Products ({category.products.length})</Text>
+            <Text size="xl">Products ({categoryProducts && categoryProducts.length})</Text>
             <Button variant="light">Add Product</Button>
           </div>
           
-          {category.products.length === 0 ? (
+          {categoryProducts && categoryProducts.length === 0 ? (
             <Text color="dimmed" className="text-center py-8">
               No products found in this category.
             </Text>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {category.products.map((product) => (
+            <div className="flex flex-wrap gap-4">
+              {categoryProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>

@@ -1,7 +1,7 @@
 import { Card, useMantineTheme } from "@mantine/core";
 import { ReactNode } from "react";
 
-export default function AdminCard({ className, children }: { className: string; children: ReactNode }) {
+export default function AdminCard({ className, children }: { className?: string; children: ReactNode }) {
   const theme = useMantineTheme();
 
   return (
