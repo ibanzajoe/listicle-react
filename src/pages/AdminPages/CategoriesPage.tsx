@@ -1,7 +1,8 @@
 import { getCategories } from "@/api";
 import AdminPageHeader from "@/components/AdminPageHeader";
 import AdminPageWrapper from "@/components/AdminPageWrapper";
-import { Button, NavLink } from "@mantine/core";
+import { Button } from "@mantine/core";
+import { Link } from "react-router-dom";
 import { IconEye, IconMinus, IconPlus } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
@@ -39,7 +40,9 @@ export default function CategoriesPage() {
           <div className="flex items-center justify-between w-full border p-2 rounded-md mb-4">
             <p>{parent.name} - <span>(Rank: { parent.rank })</span></p>
             <div className="flex items-center justify-end gap-2">
-              <IconEye />
+              <Link to={`/admin/categories/${parent.id}`}>
+                <IconEye className="cursor-pointer hover:text-blue-500" />
+              </Link>
               <IconPlus />
               {haveChildren(parent.id) && haveChildren(parent.id)?.length === 0 && <IconMinus />}
             </div>
@@ -49,7 +52,9 @@ export default function CategoriesPage() {
               <div className="flex items-center justify-between w-full border p-2 rounded-md mb-4">
                 <p>{child.name} - <span>(Rank: { child.rank })</span></p>
                 <div className="flex items-center justify-end gap-2">
-                  <IconEye />
+                  <Link to={`/admin/categories/${child.id}`}>
+                    <IconEye className="cursor-pointer hover:text-blue-500" />
+                  </Link>
                   <IconPlus />
                   <IconMinus />
                 </div>

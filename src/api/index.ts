@@ -120,6 +120,12 @@ export const getCategories = async () => {
   return response.data;
 }
 
+export const getCategoryWithProducts = async (id: string) => {
+  const response = await api.get(`/admin/categoryWithProducts/${id}`);
+
+  return response.data;
+}
+
 
 
 // ... Add more API functions for update, delete, orders, users etc.

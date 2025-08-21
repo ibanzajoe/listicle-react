@@ -5,6 +5,7 @@ import LoginPage from "@/pages/LoginPage";
 import AuthMiddleware from "@/middleware/AuthMiddleware";
 import UsersPage from "@/pages/AdminPages/UsersPage";
 import CategoriesPage from "@/pages/AdminPages/CategoriesPage";
+import CategoryDetailPage from "@/pages/AdminPages/CategoryDetailPage";
 import ProductsPage from "@/pages/AdminPages/ProductsPage";
 import OrdersPage from "@/pages/AdminPages/OrdersPage";
 import SettingsPage from "@/pages/AdminPages/SettingsPage";
@@ -29,6 +30,7 @@ export default function AppRoutes() {
           <Route path="/admin/users/:userId" element={<UserDetailPage />} />
         </Route>
         <Route path="/admin/categories" element={<CategoriesPage />} />
+        <Route path="/admin/categories/:id" element={<CategoryDetailPage />} />
         <Route path="/admin/products" element={<ProductsPage />} />
         <Route path="/admin/orders" element={<OrdersPage />} />
         <Route path="/admin/settings" element={<SettingsPage />} />
