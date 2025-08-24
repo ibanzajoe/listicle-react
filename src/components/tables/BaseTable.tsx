@@ -1,7 +1,7 @@
-import { useAdminUsers } from "@/context/AdminUsersContext";
+import { Pagination } from "@/context/AdminUsersContext";
 import { Checkbox, Table } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 export default function BaseTable({ headers, children, allowChecks = false }: { headers: string[], children: React.ReactNode, allowChecks?: boolean }) {
   return <Table striped highlightOnHover withTableBorder className="!text-xs">
@@ -19,9 +19,18 @@ export default function BaseTable({ headers, children, allowChecks = false }: { 
   </Table>;
 }
 
-export function BasePagination() {
-  const { count: total, pagination, setPagination } = useAdminUsers();
-
+export function BasePagination({
+  total,
+  pagination,
+  setPagination
+}: {
+  total: number,
+  pagination: {
+    page: number,
+    itemsPerPage: number
+  },
+  setPagination: React.Dispatch<React.SetStateAction<Pagination>>
+}) {
   const handlePaginationChange = (direction: "left" | "right") => {
     if (direction === "left") {
       if (pagination.page !== 1) {
@@ -37,7 +46,7 @@ export function BasePagination() {
   const prevTotalRef = useRef(total);
 
   useEffect(() => {
-    if (total && prevTotalRef.current !== total) {
+    if (prevTotalRef.current !== total) {
       prevTotalRef.current = total;
     }
   }, [total]);
@@ -49,7 +58,7 @@ export function BasePagination() {
         onClick={() => handlePaginationChange("left")} 
       />
       <span>
-        {pagination.page * pagination.itemsPerPage} / {prevTotalRef.current}
+        {pagination.page * pagination.itemsPerPage} / {prevTotalRef.current || total}
       </span>
       <IconChevronRight
         className="cursor-pointer"

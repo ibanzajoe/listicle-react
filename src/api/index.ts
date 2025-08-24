@@ -1,5 +1,5 @@
 // src/api/index.ts
-import { User } from '@/context/AdminUsersContext';
+import { Pagination, User } from '@/context/AdminUsersContext';
 import { AxiosError, Method as AxiosMethod, AxiosProgressEvent, AxiosResponse } from 'axios';
 import { ApiError, ApiResponse, CategoryWithProducts } from '@/lib/types';
 import axios from 'axios';
@@ -190,7 +190,6 @@ export const updateUserById = async (user: User) => {
 // Categories //
 export const getCategories = async () => {
   const response = await api.get(`/admin/categories`);
-
   return response.data;
 }
 
@@ -253,7 +252,29 @@ export const saveEmployee = async ({type, id, name, status}: {
     })
 }
 
+// PRODUCTS
 
+export const getProductsBySearch = async (pagination: Pagination) => {
+  return await apiHandler<{ products: any[]; count: number }>({
+    method: 'POST',
+    path: `/admin/products/bySearch`,
+    body: { pagination }
+  });
+}
+
+export const getProductById = async (id: string) => {
+  return await apiHandler<any>({
+    method: 'POST',
+    path: `/admin/products/byId/${id}`,
+  });
+}
+  
+export const getProductCategories = async () => {
+  return await apiHandler<any[]>({
+    method: 'GET',
+    path: `/products/categories`,
+  }); 
+}
 
 // ... Add more API functions for update, delete, orders, users etc.
 

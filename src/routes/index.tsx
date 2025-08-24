@@ -12,6 +12,8 @@ import SettingsPage from "@/pages/AdminPages/SettingsPage";
 import ReportPage from "@/pages/AdminPages/ReportPage";
 import UserDetailPage from "@/pages/AdminPages/UserDetailPage";
 import { AdminUsersProvider } from "@/context/AdminUsersContext";
+import { AdminProductsProvider } from "@/context/AdminProductsContext";
+import ProductDetailPage from "@/pages/AdminPages/ProductDetailPage";
 
 export default function AppRoutes() {
   return (
@@ -31,7 +33,10 @@ export default function AppRoutes() {
         </Route>
         <Route path="/admin/categories" element={<CategoriesPage />} />
         <Route path="/admin/categories/:id" element={<CategoryDetailPage />} />
-        <Route path="/admin/products" element={<ProductsPage />} />
+        <Route path="/admin/products" element={<AdminProductsProvider />}>
+          <Route index element={<ProductsPage />} />
+          <Route path="/admin/products/:productId" element={<ProductDetailPage />} />
+        </Route>
         <Route path="/admin/orders" element={<OrdersPage />} />
         <Route path="/admin/settings" element={<SettingsPage />} />
         <Route path="/admin/reports" element={<ReportPage />} />

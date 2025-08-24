@@ -5,11 +5,11 @@ import AdminPageWrapper from "@/components/AdminPageWrapper";
 import ProductCard from "@/components/products/ProductCard";
 import { Button, Loader, Text, Pagination, Checkbox, Group, Stack, Badge } from "@mantine/core";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 // Remove local Product and CategoryWithProducts types and import the shared type instead
-import type { CategoryWithProducts, CategoryProduct } from "@/lib/types";
+import { type CategoryWithProducts, type CategoryProduct, Category } from "@/lib/types";
 
 interface SelectedProduct {
   id: number;
@@ -23,11 +23,15 @@ export default function CategoryDetailPage() {
   const queryClient = useQueryClient();
   const [pagination, setPagination] = useState({
     page: 1,
-    itemsPerPage: 20,
+    itemsPerPage: 22,
     sortBy: 'updated_at',
     sortDesc: true
   });
+  const [categoryProducts, setCategoryProducts] = useState<CategoryProduct[]>([]);
+  const [category, setCategory] = useState<Category>();
+  const [totalCount, setTotalCount] = useState(0);
   const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
+  const selectedProductIds = useMemo(() => selectedProducts.map(p => p.id), [selectedProducts]);
   
   const { data: categoryData, isLoading, error } = useQuery<CategoryWithProducts>({
     queryKey: ['categoryWithProducts', id, pagination.page, pagination.itemsPerPage, pagination.sortBy, pagination.sortDesc],
@@ -43,23 +47,23 @@ export default function CategoryDetailPage() {
     }
   });
 
-  const category = useMemo(() => {
-    return categoryData ? categoryData.category : null;
+  useEffect(() => {
+    if (categoryData && categoryData.products && categoryData.products.length > 0) {
+      setCategoryProducts(categoryData.products);
+    }
+    if (categoryData && categoryData.category) {
+      setCategory(categoryData.category);
+    }
+    if (categoryData && categoryData.count) {
+      setTotalCount(categoryData.count);
+    }
   }, [categoryData])
 
-  const categoryProducts = useMemo(() => {
-    return categoryData ? categoryData.products : [];
-  }, [categoryData]);
-
-  const totalPages = useMemo(() => {
-    return Math.ceil((categoryProducts.length || 0) / pagination.itemsPerPage);
-  }, [categoryProducts.length, pagination.itemsPerPage]);
-
-  const handlePageChange = useCallback((page: number) => {
+  /* const handlePageChange = useCallback((page: number) => {
     setPagination(prev => ({ ...prev, page }));
-  }, []);
+  }, []); */
 
-  const handleProductSelect = useCallback((product: CategoryProduct, isSelected: boolean) => {
+  /* const handleProductSelect = useCallback((product: CategoryProduct, isSelected: boolean) => {
     if (isSelected) {
       setSelectedProducts(prev => {
         const exists = prev.find(p => p.id === product.id);
@@ -86,7 +90,7 @@ export default function CategoryDetailPage() {
 
   const isProductSelected = useCallback((productId: number) => {
     return selectedProducts.some(p => p.id === productId);
-  }, [selectedProducts]);
+  }, [selectedProducts]); */
 
   const breadcrumbs: { title: string, href: string }[] = useMemo(() => {
     return [
@@ -95,17 +99,7 @@ export default function CategoryDetailPage() {
     ]
   }, [category]);
 
-  if (isLoading) {
-    return (
-      <AdminPageWrapper>
-        <div className="flex justify-center items-center h-64">
-          <Loader size="lg" />
-        </div>
-      </AdminPageWrapper>
-    );
-  }
-
-  if (error || !category) {
+  if (error) {
     return (
       <AdminPageWrapper>
         <div className="mb-4">
@@ -130,7 +124,7 @@ export default function CategoryDetailPage() {
     <AdminPageWrapper>
       <div className="mb-4">
         <AdminPageHeader 
-          title={`Category: ${category.name}`} 
+          title={`Category: ${category && category.name}`} 
           crumbs={breadcrumbs}
           backURL="/admin/categories"
         >
@@ -140,7 +134,7 @@ export default function CategoryDetailPage() {
 
       <div className="mb-6">
         <AdminCard>
-          <div className="flex flex-col gap-4">
+          {category && <div className="flex flex-col gap-4">
             <div className="flex items-center gap-4">
               <Text className="w-32">Name:</Text>
               <Text>{category.name}</Text>
@@ -157,13 +151,13 @@ export default function CategoryDetailPage() {
               <Text className="w-32">Created:</Text>
               <Text>{new Date(category.created_at).toLocaleDateString()}</Text>
             </div>
-            {category.updated_at && (
+            {category && category.updated_at && (
               <div className="flex items-center gap-4">
                 <Text className="w-32">Updated:</Text>
                 <Text>{new Date(category.updated_at).toLocaleDateString()}</Text>
               </div>
             )}
-          </div>
+          </div>}
         </AdminCard>
       </div>
 
@@ -181,7 +175,7 @@ export default function CategoryDetailPage() {
                 <Button 
                   color="red" 
                   variant="outline"
-                  onClick={handleRemoveSelected}
+                  onClick={() => {}}
                   loading={removeProductsMutation.isPending}
                 >
                   Remove Selected ({selectedProducts.length})
@@ -197,20 +191,42 @@ export default function CategoryDetailPage() {
             </Text>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
+              <div className="flex flex-wrap gap-4 mb-4">
                 {categoryProducts.map((product) => (
-                  <div key={product.id} className="relative">
+                  <div
+                    key={product.id}
+                    className={`relative rounded-md ${selectedProductIds.includes(product.id) ? 'border-2 border-red-500' : 'border-2 border-transparent'} `}
+                    onClick={() => {
+                      const isChecked = selectedProducts.some(p => p.id === product.id);
+                      if (isChecked) {
+                        setSelectedProducts(prev => prev.filter(p => p.id !== product.id));
+                      } else {
+                        setSelectedProducts(prev => [...prev, {
+                          id: product.id,
+                          name: product.name,
+                          sku: product.sku,
+                          main_image: product.main_image
+                        }]);
+                      }
+                    }}  
+                  >
                     <div className="absolute top-2 left-2 z-10">
                       <Checkbox
-                        checked={isProductSelected(product.id)}
-                        onChange={(event) => handleProductSelect(product, event.currentTarget.checked)}
-                        size="md"
-                        styles={{
-                          input: {
-                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                            borderColor: '#000'
+                        checked={selectedProductIds.includes(product.id)}
+                        onChange={(event) => {
+                          const isChecked = selectedProducts.some(p => p.id === product.id);
+                          if (isChecked) {
+                            setSelectedProducts(prev => prev.filter(p => p.id !== product.id));
+                          } else {
+                            setSelectedProducts(prev => [...prev, {
+                              id: product.id,
+                              name: product.name,
+                              sku: product.sku,
+                              main_image: product.main_image
+                            }]);
                           }
                         }}
+                        size="xs"
                       />
                     </div>
                     <ProductCard product={product} />
@@ -218,12 +234,12 @@ export default function CategoryDetailPage() {
                 ))}
               </div>
               
-              {totalPages > 1 && (
+              {totalCount > 1 && (
                 <div className="flex justify-center mt-6">
                   <Pagination
                     value={pagination.page}
-                    onChange={handlePageChange}
-                    total={totalPages}
+                    onChange={(event) => setPagination(prev => ({ ...prev, page: event }))}
+                    total={totalCount ? Math.ceil(totalCount / pagination.itemsPerPage) : 1}
                     size="md"
                   />
                 </div>
@@ -251,7 +267,7 @@ export default function CategoryDetailPage() {
                     size="xs" 
                     variant="light" 
                     color="red"
-                    onClick={() => handleProductSelect(product as CategoryProduct, false)}
+                    onClick={() => {}}
                   >
                     Remove from selection
                   </Button>

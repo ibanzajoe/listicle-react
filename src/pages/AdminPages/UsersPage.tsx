@@ -1,11 +1,10 @@
-import { Button, Container, Loader, Select, TextInput, Title } from "@mantine/core";
+import { Button, Select, TextInput, Title } from "@mantine/core";
 import UsersTable from "@/components/tables/UsersTable";
 import { TableProvider, useTableContext } from "@/components/tables/useTableContext";
 import { useForm } from "@mantine/form";
 import { IconSearch } from "@tabler/icons-react";
 import { BasePagination } from "@/components/tables/BaseTable";
 import { Pagination, useAdminUsers } from "@/context/AdminUsersContext";
-import { useMemo } from "react";
 import AdminPageWrapper from "@/components/AdminPageWrapper";
 
 export default function UsersPage() {
@@ -70,14 +69,16 @@ export function TableSettings() {
 }
 
 export function TableView() {
+  const { count: total, pagination, setPagination } = useAdminUsers();
+
   return (
     <>
         <div className="flex items-center justify-end py-4">
-          <BasePagination />
+          <BasePagination total={total} pagination={pagination} setPagination={setPagination} />
         </div>
         <UsersTable />
         <div className="flex items-center justify-end py-4">
-          <BasePagination />
+          <BasePagination total={total} pagination={pagination} setPagination={setPagination} />
         </div>
       </>
   )

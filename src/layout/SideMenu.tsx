@@ -17,7 +17,7 @@ import './SideMenu.css';
 import { UserButton } from '@/components/auth/AvatarButton';
 import { useAuth } from '@/context/AuthContext';
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 
 const links = [
   { icon: IconBulb, label: 'Activity', notifications: 3 },
@@ -40,6 +40,7 @@ const collections = [
 
 export function SideMenu() {
   const { logout } = useAuth();
+  const location = useLocation();
   const mainLinks = links.map((link) => (
     <UnstyledButton key={link.label} className={"mainLink"}>
       <div className={"mainLinkInner"}>
@@ -56,10 +57,12 @@ export function SideMenu() {
 
   const [active, setActive] = useState(0);
 
+  console.log('pathname: ', location.pathname);
+
   const collectionLinks = collections.map((collection, index) => (
     <NavLink
         className={"!py-1"}
-        active={index === active}
+        active={location.pathname.split('/').includes(collection.href.split('/')[2])}
         key={`collection-${collection.label}`}
         label={collection.label}
         leftSection={<Box component="span" mr={2} fz={14}>{collection.emoji}</Box>}

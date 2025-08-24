@@ -43,7 +43,8 @@ interface CategoryProduct {
 interface CategoryWithProducts {
     category: Category;
     products: CategoryProduct[];
+    count: number;
 }
 
-export type { ApiResponse, ApiError, CategoryProduct, CategoryWithProducts }
+export type { ApiResponse, ApiError, Category, CategoryProduct, CategoryWithProducts }
 
